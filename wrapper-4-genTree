@@ -42,24 +42,28 @@ then
   cd $out_p 
   [ -e values.txt ] && rm values.txt
   
-#build maximum likelihood tree
-#  $phyml_cmd -i $aln_f &> /dev/null
-#  mv $aln_f\_phyml_tree.txt $ML_f
-#  rm $aln_f\_phyml_stats.txt
-    
 #build neighbor joining tree
-  echo -e "$aln_f\nY\n"|protdist
-  mv outfile infile
-  echo -e "Y\n"|neighbor
-  mv outtree $NJ_f; rm outfile infile
-
-#build parsimony tree
-  seed=433
-  jumble=50
-  echo -e "$aln_f\nJ\n$seed\n$jumble\nY\n"|protpars
-  mv outtree $PA_f; rm outfile
+  if [ ! -e $NJ_f ]
+  then
+   echo -e "$aln_f\nY\n"|protdist
+   mv outfile infile
+   echo -e "Y\n"|neighbor
+   mv outtree $NJ_f; rm outfile infile
+  else
+   echo "SKIP: $NJ_f exists"
+  fi
   
-#  calculateTreeDist $tip_p/$var_p $ML_f RFDistML
+#build parsimony tree
+  if [ ! -e $PA_f ]
+  then
+   seed=433
+   jumble=50
+   echo -e "$aln_f\nJ\n$seed\n$jumble\nY\n"|protpars
+   mv outtree $PA_f; rm outfile
+  else
+   echo "SKIP: $PA_f exists"
+  fi
+  
   calculateTreeDist $tip_p/$var_p $NJ_f RFDistNJ
   calculateTreeDist $tip_p/$var_p $PA_f RFDistPA
   

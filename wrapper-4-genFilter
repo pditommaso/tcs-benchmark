@@ -32,30 +32,54 @@ then
   cp $input_fa $tmp_f
   case $filter in
   "TG")
-    $trimal_cmd -in $tmp_f -out tmp.trim -gappyout
-    $reformat_cmd -in tmp.trim -output phylip > $phylip_f
+    if [ ! -e $phylip_f ]
+    then
+     $trimal_cmd -in $tmp_f -out tmp.trim -gappyout
+     $reformat_cmd -in tmp.trim -output phylip > $phylip_f
+    else
+     echo "SKIP: $phylip_f exists"
+    fi
     ;;
   "TS")
-    $trimal_cmd -in $tmp_f -out tmp.trim -strictplus
-    $reformat_cmd -in tmp.trim -output phylip > $phylip_f
+    if [ ! -e $phylip_f ]
+    then
+     $trimal_cmd -in $tmp_f -out tmp.trim -strictplus
+     $reformat_cmd -in tmp.trim -output phylip > $phylip_f
+    else
+     echo "SKIP: $phylip_f exists"
+    fi
     ;;    
   "GS")
-    $gblock_cmd $tmp_f -t=p
-    $reformat_cmd -in $tmp_f-gb -output phylip > $phylip_f
+    if [ ! -e $phylip_f ]
+    then
+     $gblock_cmd $tmp_f -t=p
+     $reformat_cmd -in $tmp_f-gb -output phylip > $phylip_f
+    else
+     echo "SKIP: $phylip_f exists"
+    fi
     ;;
   "GR")
-    $gblock_cmd $tmp_f -t=p -b2=9 -b3=10 -b4=5 -b5=h
-    $reformat_cmd -in $tmp_f-gb -output phylip > $phylip_f
+    if [ ! -e $phylip_f ]
+    then
+     $gblock_cmd $tmp_f -t=p -b2=9 -b3=10 -b4=5 -b5=h
+     $reformat_cmd -in $tmp_f-gb -output phylip > $phylip_f
+    else
+     echo "SKIP: $phylip_f exists"
+    fi
     ;;
   "WR")
-    $tcoffee_cmd -infile $tmp_f -multi_core no -evaluate -output score_ascii -outfile $sa_f -quiet&>/dev/null
-    grep cons $sa_f|tail -n+2|awk '{print $2}'|sed 's/\(.\)\(.\)/\1\n\2/g'|sed 's/\(.\)\(.\)/\1\n\2/g'>tmp.wei
-    $weiSeqboot_cmd $input_phylip tmp.wei
-    mv outfile $phylip_f
+    if [ ! -e $phylip_f ]
+    then
+     $tcoffee_cmd -infile $tmp_f -multi_core no -evaluate -output score_ascii -outfile $sa_f -quiet&>/dev/null
+     grep cons $sa_f|tail -n+2|awk '{print $2}'|sed 's/\(.\)\(.\)/\1\n\2/g'|sed 's/\(.\)\(.\)/\1\n\2/g'>tmp.wei
+     $weiSeqboot_cmd $input_phylip tmp.wei
+     mv outfile $phylip_f
+    else
+     echo "SKIP: $phylip_f exists"
+    fi
     ;;
   esac
-  rm tmp.*
+  rm -rf tmp.*
 else
   echo "ERROR: $input_fa not exists"
 fi
-  

@@ -43,13 +43,16 @@ then
   [ -e values.txt ] && rm values.txt
   
 #build maximum likelihood tree
-  $phyml_cmd -i $aln_f &> /dev/null
-  mv $aln_f\_phyml_tree.txt $ML_f
-  rm $aln_f\_phyml_stats.txt
-    
+  if [ ! -e $ML_f ]
+  then
+   $phyml_cmd -i $aln_f &> /dev/null
+   mv $aln_f\_phyml_tree.txt $ML_f
+   rm $aln_f\_phyml_stats.txt
+  else
+   echo "SKIP: $ML_f exists"
+  fi  
 
   calculateTreeDist $tip_p/$var_p $ML_f RFDistML
-  
 else
   echo "ERROR $aln_f not exist"
 fi
