@@ -27,11 +27,11 @@ fi
 
 if [[ $STEPS == $ALL_STEPS || $STEPS == *clean* ]]; then 
   echo "Clean folders"
-  rm -rf ${OUT_FOLDER}/tips*
+  rm -rf ${DATA_FOLDER}/tips*
   rm -rf ${LOG_FOLDER}/*
 fi
 
-date > $LOG_FOLDER/genlog-$$-start
+date > log-$$-start
 
 #
 # Pipeline code begins here 
@@ -76,10 +76,11 @@ if [[ $STEPS == *ml* ]]; then
   for it in $LONG_METHODS; do
     bash submit.sh $COUNT genML $it  
   done
+  bash ./qwait.sh
   if [ -e qsync.sh ]; then bash qsync.sh; fi 
 fi
 
-date > $LOG_FOLDER/genlog-$$-end
+date > log-$$-end
 
 
 #

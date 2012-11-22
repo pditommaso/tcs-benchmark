@@ -45,19 +45,19 @@ do
 	  case $action in
 	  "genAln")
 	    LOG="${LOG_FOLDER}/${action}_aln-${aln}"
-	    $qsub_cmd -o $LOG -t 1-$NUM_SET ./wrapper-4-genAln $tip $diver $len $aln
+	    $qsub_cmd -N $action -o $LOG -t 1-$NUM_SET ./wrapper-4-genAln $tip $diver $len $aln
 	    ;;
 	  "genFilter")
 	    LOG="${LOG_FOLDER}/${action}_method-${method}_aln-${aln}"
-	    $qsub_cmd -o $LOG -t 1-$NUM_SET ./wrapper-4-genFilter $tip $diver $len $aln $method
+	    $qsub_cmd -N $action -o $LOG -t 1-$NUM_SET ./wrapper-4-genFilter $tip $diver $len $aln $method
 	    ;;
 	  "genTree")
             LOG="${LOG_FOLDER}/${action}_method-${method}_aln-${aln}"
-	    $qsub_cmd -o $LOG -t 1-$NUM_SET ./wrapper-4-genTree $tip $diver $len $aln $method
+	    $qsub_cmd -N $action -o $LOG -t 1-$NUM_SET ./wrapper-4-genTree $tip $diver $len $aln $method
 	    ;;
 	   "genML")
             LOG="${LOG_FOLDER}/${action}_method-${method}_aln-${aln}"
-	    $qsub_cmd -o $LOG -t 1-$NUM_SET ./wrapper-4-genML $tip $diver $len $aln $method
+	    $qsub_cmd -N $action -o $LOG -t 1-$NUM_SET ./wrapper-4-genML $tip $diver $len $aln $method
 	    ;;
 	  esac
 	done

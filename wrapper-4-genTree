@@ -43,7 +43,9 @@ cd $TMPDIR
 if [ -e $aln_f ]
 then
   echo "process $aln_f"
-    
+
+  if [ -e $out_p/$NJ_f ]; then echo "SKIP genTree: $out_p/$NJ_f exists"; exit 0; fi
+  if [ -e $out_p/$PA_f ]; then echo "SKIP genTree: $out_p/$PA_f exists"; exit 0; fi
   
 #build neighbor joining tree
   echo -e "$aln_f\nY\n"|protdist

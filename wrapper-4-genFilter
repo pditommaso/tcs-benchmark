@@ -49,6 +49,8 @@ cd $TMPDIR
 if [ -e $input_fa ]
 then   
   echo "process $input_fa"
+
+  if [ -e $out_p/$phylip_f ]; then echo "SKIP genFilter: $out_p/$phylip_f exists"; exit 0; fi
   
   cp $input_fa $tmp_f
   case $filter in
@@ -84,7 +86,7 @@ then
     echo "Missing result: $phylip_f in script genFilter"
   fi 
   
-  rm tmp.*
+  rm -rf tmp.*
   
 else
   echo "ERROR: $input_fa not exists"

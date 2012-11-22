@@ -5,7 +5,7 @@ XHOST=$(hostname -s)
 echo "Zipping and uploading log files for: $XHOST" 
 
 # Zipping 
-ZIP=$TMPDIR/$PRJNAME-$XHOST-logs.zip
+ZIP=$TMPDIR/$PRJNAME-logs-$XHOST.zip
 cd $LOG_FOLDER
 zip -r $ZIP * 
 

@@ -45,7 +45,12 @@ if [ -e $aln_f ]
 then
   echo "process $aln_f"
 
+  # Skip if already exists
+  if [ -e $out_p/$ML_f ]; then echo "SKIP genML: $out_p/$ML_f exists"; exit 0; fi
     
+  # copy back in the current folder 
+  [ -e "$out_p/values.txt" ] && cp $out_p/values.txt .
+
 #build maximum likelihood tree
   $phyml_cmd -i $aln_f &> /dev/null
   mv $aln_f\_phyml_tree.txt $ML_f
