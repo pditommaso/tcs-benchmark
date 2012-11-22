@@ -1,13 +1,22 @@
 #!/bin/bash
-echo "SHELL: $SHELL"
-root_p="$PWD/data/01.Data/"
+set -u
+set -e
+trap "echo Script terminated with non-zero: $?" ERR
+
+export EMAIL_4_TCOFFEE="tcoffee.msa@gmail.com"
+export TMP_4_TCOFFEE="$TMPDIR/.tcoffee/tmp/"
+export CACHE_4_TCOFFEE="$TMPDIR/.tcoffee/cache/"
+export LOCKDIR_4_TCOFFEE="$TMPDIR/.tcoffee/lck"
+mkdir -p $TMP_4_TCOFFEE
+mkdir -p $CACHE_4_TCOFFEE
+mkdir -p $LOCKDIR_4_TCOFFEE
+
+
 reformat_cmd="t_coffee -other_pg seq_reformat"
 mafft_cmd="mafft --quiet --nj"
 clustal_cmd="clustalw"
 probcons_cmd="probcons"
 
-fa_f="MSA.fa"
-phylip_f="MSA.phylip"
 
 tip_p=$1
 var_p=$2 #assim_mod_0.5
@@ -15,21 +24,25 @@ len=$3
 aln=$4
 set_p=$(printf "%03d" $SGE_TASK_ID)
 
-input_f="$root_p/$tip_p/$var_p/$set_p/seqs/$set_p.$len.fa"
-aln_p="$tip_p/$var_p/len$len/set$set_p/OA/$aln"
+input_f="${DB_FOLDER}/01.Data/$tip_p/$var_p/$set_p/seqs/$set_p.$len.fa"
+aln_p="${DATA_FOLDER}/$tip_p/$var_p/len$len/set$set_p/OA/$aln"
+fa_f="MSA.fa"
+phylip_f="MSA.phylip"
+
+#
+# note: move the TMPDIR folder (e.i. scratch) for avoid network overload
+#
+cd $TMPDIR
 
 if [ -e $input_f ]
 then   
   echo "process $input_f"
-  
-   [ ! -e $aln_p ] && mkdir -p $aln_p
-   cd $aln_p
    
  #   sed s/-//g $input_f > tmp.fasta
    cp $input_f tmp.fasta
    case $aln in
    "MA")
-     $mafft_cmd $input_f > tmp.aln 2> /dev/null
+     $mafft_cmd tmp.fasta > tmp.aln 2> /dev/null
      ;;
    "CL")  
      $clustal_cmd -infile=tmp.fasta -outfile=tmp.aln
@@ -40,6 +53,12 @@ then
    esac  
    $reformat_cmd -in tmp.aln -output phylip > $phylip_f
    $reformat_cmd -in tmp.aln -output fasta > $fa_f
+   
+   # move result to target folder 
+   [ ! -e $aln_p ] && mkdir -p $aln_p
+   mv $fa_f $aln_p
+   mv $phylip_f $aln_p
+
    rm tmp.*
 else
   echo "ERROR: $input_f not exists"

@@ -1,12 +1,14 @@
 #!/bin/bash
-dataFolder="$PWD/data"
+set -u
+trap "echo Script terminated with non-zero: $?" ERR
 
 calculateTreeDist() {
-  ref_T="$dataFolder/00.ReferenceTrees/$1.unroot.tree"
+  ref_T="${DB_FOLDER}/00.ReferenceTrees/$1.unroot.tree"
   tmp_trees="tmp.trees"  
   
   input_T=$2
   method=$3
+  
 #calculate tree distance
   if [ -e $ref_T ] && [ -e $input_T ]
   then
@@ -19,10 +21,6 @@ calculateTreeDist() {
   fi
 }
 
-phyml_cmd="phyml --quiet -d aa -m JTT -a e -v e" #Amino Acid, JTT+I+Gamma mode
-ML_f="MaxLikelihood.nwk"
-NJ_f="NeighborJoining.nwk"
-PA_f="Parsimony.nwk"
 
 tip_p=$1
 var_p=$2
@@ -31,41 +29,44 @@ aln=$4
 filter=$5
 set_p=$(printf "%03d" $SGE_TASK_ID)
 
-aln_f="$(pwd)/$tip_p/$var_p/len$len/set$set_p/$filter/$aln/MSA.phylip"
-out_p="$tip_p/$var_p/len$len/set$set_p/$filter/$aln/"
+aln_f="${DATA_FOLDER}/$tip_p/$var_p/len$len/set$set_p/$filter/$aln/MSA.phylip"
+out_p="${DATA_FOLDER}/$tip_p/$var_p/len$len/set$set_p/$filter/$aln/"
+
+NJ_f="NeighborJoining.nwk"
+PA_f="Parsimony.nwk"
+
+#
+# Move to the scratch DIR
+# 
+cd $TMPDIR
 
 if [ -e $aln_f ]
 then
   echo "process $aln_f"
     
-  [ ! -e $out_p ] && mkdir -p $out_p
-  cd $out_p 
-  [ -e values.txt ] && rm values.txt
   
 #build neighbor joining tree
-  if [ ! -e $NJ_f ]
-  then
-   echo -e "$aln_f\nY\n"|protdist
-   mv outfile infile
-   echo -e "Y\n"|neighbor
-   mv outtree $NJ_f; rm outfile infile
-  else
-   echo "SKIP: $NJ_f exists"
-  fi
-  
+  echo -e "$aln_f\nY\n"|protdist
+  mv outfile infile
+  echo -e "Y\n"|neighbor
+  mv outtree $NJ_f; rm outfile infile
+
 #build parsimony tree
-  if [ ! -e $PA_f ]
-  then
-   seed=433
-   jumble=50
-   echo -e "$aln_f\nJ\n$seed\n$jumble\nY\n"|protpars
-   mv outtree $PA_f; rm outfile
-  else
-   echo "SKIP: $PA_f exists"
-  fi
+  seed=433
+  jumble=50
+  echo -e "$aln_f\nJ\n$seed\n$jumble\nY\n"|protpars
+  mv outtree $PA_f; rm outfile
   
   calculateTreeDist $tip_p/$var_p $NJ_f RFDistNJ
   calculateTreeDist $tip_p/$var_p $PA_f RFDistPA
+  
+  # Copy result files
+  [ ! -e $out_p ] && mkdir -p $out_p
+  [ -e "$out_p/values.txt" ] && rm "$out_p/values.txt"
+  
+  mv $NJ_f $out_p
+  mv $PA_f $out_p
+  mv values.txt $out_p
   
 else
   echo "ERROR $aln_f not exist"
