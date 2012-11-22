@@ -40,5 +40,5 @@ echo -e "$MAIL_BODY" | ses-send-email.pl -s "$MAIL_SUBJECT" -f $MAIL_FROM $MAIL_
 # Turn-off the cluster
 #
 if [ -e .instances ]; then
-cat .instances | ec2-stop-instances --region eu-west-1
+cat .instances | ec2-stop-instances - --region eu-west-1
 fi
