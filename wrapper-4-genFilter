@@ -1,0 +1,61 @@
+#!/bin/bash
+
+reformat_cmd="t_coffee -other_pg seq_reformat"
+gblock_cmd="Gblocks"
+trimal_cmd="trimal"
+tcoffee_cmd="t_coffee"
+weiSeqboot_cmd="wei_seqboot -n 1 -r 0"
+
+fa_f="MSA.fa"
+phylip_f="MSA.phylip"
+tmp_f="tmp.fa"
+sa_f="prob_pair.sa"
+
+tip_p=$1
+var_p=$2
+len=$3
+aln=$4
+filter=$5
+set_p=$(printf "%03d" $SGE_TASK_ID)
+
+input_fa="$(pwd)/$tip_p/$var_p/len$len/set$set_p/OA/$aln/MSA.fa"
+input_phylip="$(pwd)/$tip_p/$var_p/len$len/set$set_p/OA/$aln/MSA.phylip"
+out_p="$tip_p/$var_p/len$len/set$set_p/$filter/$aln/"
+
+if [ -e $input_fa ]
+then   
+  echo "process $input_fa"
+  
+  [ ! -e $out_p ] && mkdir -p $out_p
+  cd $out_p
+  
+  cp $input_fa $tmp_f
+  case $filter in
+  "TG")
+    $trimal_cmd -in $tmp_f -out tmp.trim -gappyout
+    $reformat_cmd -in tmp.trim -output phylip > $phylip_f
+    ;;
+  "TS")
+    $trimal_cmd -in $tmp_f -out tmp.trim -strictplus
+    $reformat_cmd -in tmp.trim -output phylip > $phylip_f
+    ;;    
+  "GS")
+    $gblock_cmd $tmp_f -t=p
+    $reformat_cmd -in $tmp_f-gb -output phylip > $phylip_f
+    ;;
+  "GR")
+    $gblock_cmd $tmp_f -t=p -b2=9 -b3=10 -b4=5 -b5=h
+    $reformat_cmd -in $tmp_f-gb -output phylip > $phylip_f
+    ;;
+  "WR")
+    $tcoffee_cmd -infile $tmp_f -multi_core no -evaluate -output score_ascii -outfile $sa_f -quiet&>/dev/null
+    grep cons $sa_f|tail -n+2|awk '{print $2}'|sed 's/\(.\)\(.\)/\1\n\2/g'|sed 's/\(.\)\(.\)/\1\n\2/g'>tmp.wei
+    $weiSeqboot_cmd $input_phylip tmp.wei
+    mv outfile $phylip_f
+    ;;
+  esac
+  rm tmp.*
+else
+  echo "ERROR: $input_fa not exists"
+fi
+  

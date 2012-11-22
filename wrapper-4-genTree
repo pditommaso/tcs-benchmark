@@ -1,0 +1,68 @@
+#!/bin/bash
+dataFolder="$PWD/data"
+
+calculateTreeDist() {
+  ref_T="$dataFolder/00.ReferenceTrees/$1.unroot.tree"
+  tmp_trees="tmp.trees"  
+  
+  input_T=$2
+  method=$3
+#calculate tree distance
+  if [ -e $ref_T ] && [ -e $input_T ]
+  then
+    cat $ref_T $input_T > $tmp_trees
+    echo -e "$tmp_trees\nD\nY\n" | treedist > /dev/null
+    grep "Trees 1 and 2" outfile|awk '{printf "'$method' %.3f\n",$5}' >> values.txt
+    rm outfile $tmp_trees
+  else
+    echo "ERROR $ref_T or $input_T not exist"
+  fi
+}
+
+phyml_cmd="phyml --quiet -d aa -m JTT -a e -v e" #Amino Acid, JTT+I+Gamma mode
+ML_f="MaxLikelihood.nwk"
+NJ_f="NeighborJoining.nwk"
+PA_f="Parsimony.nwk"
+
+tip_p=$1
+var_p=$2
+len=$3
+aln=$4
+filter=$5
+set_p=$(printf "%03d" $SGE_TASK_ID)
+
+aln_f="$(pwd)/$tip_p/$var_p/len$len/set$set_p/$filter/$aln/MSA.phylip"
+out_p="$tip_p/$var_p/len$len/set$set_p/$filter/$aln/"
+
+if [ -e $aln_f ]
+then
+  echo "process $aln_f"
+    
+  [ ! -e $out_p ] && mkdir -p $out_p
+  cd $out_p 
+  [ -e values.txt ] && rm values.txt
+  
+#build maximum likelihood tree
+#  $phyml_cmd -i $aln_f &> /dev/null
+#  mv $aln_f\_phyml_tree.txt $ML_f
+#  rm $aln_f\_phyml_stats.txt
+    
+#build neighbor joining tree
+  echo -e "$aln_f\nY\n"|protdist
+  mv outfile infile
+  echo -e "Y\n"|neighbor
+  mv outtree $NJ_f; rm outfile infile
+
+#build parsimony tree
+  seed=433
+  jumble=50
+  echo -e "$aln_f\nJ\n$seed\n$jumble\nY\n"|protpars
+  mv outtree $PA_f; rm outfile
+  
+#  calculateTreeDist $tip_p/$var_p $ML_f RFDistML
+  calculateTreeDist $tip_p/$var_p $NJ_f RFDistNJ
+  calculateTreeDist $tip_p/$var_p $PA_f RFDistPA
+  
+else
+  echo "ERROR $aln_f not exist"
+fi
