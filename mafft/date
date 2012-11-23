@@ -1,0 +1,18 @@
+#!/bin/bash
+
+LONG_METHODS="$METHODS OA"
+for it in $LONG_METHODS; do
+bash submit $COUNT genML $it  
+done
+
+
+bash ./qwait.sh
+
+
+echo Real END TIME `/bin/date`
+
+ 
+   
+
+
+
