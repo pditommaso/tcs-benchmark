@@ -25,6 +25,16 @@ if [ -e prolog.sh ]; then
   . prolog.sh
 fi 
 
+#
+# Sanity check
+# 
+if [[ ! -e $DB_FOLDER ||  ! $(ls -A $DB_FOLDER 2>/dev/null)  ]]; then echo "Missing or empty DB_FOLDER: $DB_FOLDER"; fi
+
+if [ ! -e $DATA_FOLDER ]; then mkdir -p $DATA_FOLDER; fi
+if [ ! -e $LOG_FOLDER ]; then mkdir -p $LOG_FOLDER; fi 
+if [ ! -e $ZIP_FOLDER ]; then mkdir -p $ZIP_FOLDER; fi 
+
+
 if [[ $STEPS == $ALL_STEPS || $STEPS == *clean* ]]; then 
   echo "Clean folders"
   rm -rf ${DATA_FOLDER}/tips*

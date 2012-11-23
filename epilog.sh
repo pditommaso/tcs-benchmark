@@ -31,7 +31,7 @@ bash qupload.sh
 # Send notification email
 #
 MAIL_BODY="$PRJNAME job completed\n\nDownload the result at this link http://cbcrg-eu.s3.amazonaws.com/$ZIP\n\nBye"
-MAIL_RECIPIENTS="paolo.ditommaso@gmail.com"
+MAIL_RECIPIENTS="paolo.ditommaso@gmail.com chang.jiaming@gmail.com"
 MAIL_FROM="tcoffee.msa@gmail.com"
 MAIL_SUBJECT="$PRJNAME terminated ($$)!"
 echo -e "$MAIL_BODY" | ses-send-email.pl -s "$MAIL_SUBJECT" -f $MAIL_FROM $MAIL_RECIPIENTS
