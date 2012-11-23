@@ -55,13 +55,11 @@ then
   $phyml_cmd -i $aln_f &> /dev/null
   mv $aln_f\_phyml_tree.txt $ML_f
   rm $aln_f\_phyml_stats.txt
-    
-
+  
   calculateTreeDist $tip_p/$var_p $ML_f RFDistML
   
   # Copy the result files
   [ ! -e $out_p ] && mkdir -p $out_p
-  [ -e "$out_p/values.txt" ] && rm "$out_p/values.txt"
   
   mv $ML_f $out_p
   mv values.txt $out_p
