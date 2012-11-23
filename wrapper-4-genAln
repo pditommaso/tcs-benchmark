@@ -11,21 +11,19 @@ mkdir -p $TMP_4_TCOFFEE
 mkdir -p $CACHE_4_TCOFFEE
 mkdir -p $LOCKDIR_4_TCOFFEE
 
-
 reformat_cmd="t_coffee -other_pg seq_reformat"
 mafft_cmd="mafft --quiet --nj"
 clustal_cmd="clustalw"
 probcons_cmd="probcons"
 
-
 tip_p=$1
-var_p=$2 #assim_mod_0.5
+var_p=$2
 len=$3
 aln=$4
 set_p=$(printf "%03d" $SGE_TASK_ID)
 
 input_f="${DB_FOLDER}/01.Data/$tip_p/$var_p/$set_p/seqs/$set_p.$len.fa"
-aln_p="${DATA_FOLDER}/$tip_p/$var_p/len$len/set$set_p/OA/$aln"
+out_p="${DATA_FOLDER}/$tip_p/$var_p/len$len/set$set_p/OA/$aln"
 fa_f="MSA.fa"
 phylip_f="MSA.phylip"
 
@@ -37,8 +35,10 @@ cd $TMPDIR
 if [ -e $input_f ]
 then   
   echo "process $input_f"
-   
- #   sed s/-//g $input_f > tmp.fasta
+  
+  # Skip if already exists
+  if [ -e $out_p/$phylip_f ]; then echo "SKIP genAln: $out_p/$phylip_f exists"; exit 0; fi
+  
    cp $input_f tmp.fasta
    case $aln in
    "MA")
@@ -50,14 +50,14 @@ then
    "PC")  
      $probcons_cmd tmp.fasta > tmp.aln 2> /dev/null
      ;;
-   esac  
+   esac
    $reformat_cmd -in tmp.aln -output phylip > $phylip_f
    $reformat_cmd -in tmp.aln -output fasta > $fa_f
    
    # move result to target folder 
-   [ ! -e $aln_p ] && mkdir -p $aln_p
-   mv $fa_f $aln_p
-   mv $phylip_f $aln_p
+   [ ! -e $out_p ] && mkdir -p $out_p
+   mv $fa_f $out_p
+   mv $phylip_f $out_p
 
    rm tmp.*
 else
