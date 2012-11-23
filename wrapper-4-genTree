@@ -43,28 +43,36 @@ cd $TMPDIR
 if [ -e $aln_f ]
 then
   echo "process $aln_f"
-
-  if [ -e $out_p/$NJ_f ]; then echo "SKIP genTree: $out_p/$NJ_f exists"; exit 0; fi
-  if [ -e $out_p/$PA_f ]; then echo "SKIP genTree: $out_p/$PA_f exists"; exit 0; fi
   
 #build neighbor joining tree
-  echo -e "$aln_f\nY\n"|protdist
-  mv outfile infile
-  echo -e "Y\n"|neighbor
-  mv outtree $NJ_f; rm outfile infile
+  if [ -e $out_p/$NJ_f ] 
+  then 
+    echo "SKIP genTree: $out_p/$NJ_f exists"
+    cp $out_p/$NJ_f $NJ_f
+  else
+    echo -e "$aln_f\nY\n"|protdist
+    mv outfile infile
+    echo -e "Y\n"|neighbor
+    mv outtree $NJ_f; rm outfile infile
+  fi 
 
 #build parsimony tree
-  seed=433
-  jumble=50
-  echo -e "$aln_f\nJ\n$seed\n$jumble\nY\n"|protpars
-  mv outtree $PA_f; rm outfile
+  if [ -e $out_p/$PA_f ]
+  then 
+    echo "SKIP genTree: $out_p/$PA_f exists"
+    cp $out_p/$PA_f $PA_f
+  else    
+    seed=433
+    jumble=50
+    echo -e "$aln_f\nJ\n$seed\n$jumble\nY\n"|protpars
+    mv outtree $PA_f; rm outfile
+  fi
   
   calculateTreeDist $tip_p/$var_p $NJ_f RFDistNJ
   calculateTreeDist $tip_p/$var_p $PA_f RFDistPA
   
   # Copy result files
   [ ! -e $out_p ] && mkdir -p $out_p
-  [ -e "$out_p/values.txt" ] && rm "$out_p/values.txt"
   
   mv $NJ_f $out_p
   mv $PA_f $out_p
