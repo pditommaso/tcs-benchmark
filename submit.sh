@@ -13,12 +13,18 @@ then
   divers=("asymmetric_0.5")   
   lens=("0400") #aln len      
   alns=("MA" "CL" "PC") #MAFFT, ClustalW2, ProbCons
-else                                               
+elif [ $RUN_MODE == "complete" ]
+then                                               
   tips=("tips32" "tips64") #tips number, tips16:300 sets, tips32,tips64:300 sets
   #divergence level                                                             
   divers=("asymmetric_0.5" "asymmetric_1.0" "asymmetric_2.0" "symmetric_0.5" "symmetric_1.0" "symmetric_2.0")
   lens=("0400" "0800" "1200" "1600" "3200") #aln len                                                     
   alns=("MA" "CL" "PC") #MAFFT, ClustalW2, ProbCons                                                      
+else
+  tips=("tips32" "tips64")
+  divers=("asymmetric_0.5" "asymmetric_1.0" "asymmetric_2.0")
+  lens=("0400" "0800" "1200")                                                     
+  alns=("MA")
 fi                                                                                                       
 
 #GS:Gblock relax, GS:Gblock stringent, TG:trimal gappyout, TS:trimal strictplus
@@ -44,19 +50,19 @@ do
 	do	
 	  case $action in
 	  "genAln")
-	    LOG="${LOG_FOLDER}/${action}_aln-${aln}"
+	    LOG="${LOG_FOLDER}/${action}_aln-${aln}-\$JOB_ID.o"
 	    $qsub_cmd -N $action -o $LOG -t 1-$NUM_SET ./wrapper-4-genAln $tip $diver $len $aln
 	    ;;
 	  "genFilter")
-	    LOG="${LOG_FOLDER}/${action}_method-${method}_aln-${aln}"
+	    LOG="${LOG_FOLDER}/${action}_method-${method}_aln-${aln}-\$JOB_ID.o"
 	    $qsub_cmd -N $action -o $LOG -t 1-$NUM_SET ./wrapper-4-genFilter $tip $diver $len $aln $method
 	    ;;
 	  "genTree")
-            LOG="${LOG_FOLDER}/${action}_method-${method}_aln-${aln}"
+            LOG="${LOG_FOLDER}/${action}_method-${method}_aln-${aln}-\$JOB_ID.o"
 	    $qsub_cmd -N $action -o $LOG -t 1-$NUM_SET ./wrapper-4-genTree $tip $diver $len $aln $method
 	    ;;
 	   "genML")
-            LOG="${LOG_FOLDER}/${action}_method-${method}_aln-${aln}"
+            LOG="${LOG_FOLDER}/${action}_method-${method}_aln-${aln}-\$JOB_ID.o"
 	    $qsub_cmd -N $action -o $LOG -t 1-$NUM_SET ./wrapper-4-genML $tip $diver $len $aln $method
 	    ;;
 	  esac
