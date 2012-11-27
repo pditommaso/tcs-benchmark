@@ -71,8 +71,8 @@ then
     $reformat_cmd -in $tmp_f-gb -output phylip > $phylip_f
     ;;
   "WR")
-    $tcoffee_cmd -infile $tmp_f -multi_core no -evaluate -output score_ascii -outfile $sa_f -quiet&>/dev/null
-    grep cons $sa_f|tail -n+2|awk '{print $2}'|sed 's/\(.\)\(.\)/\1\n\2/g'|sed 's/\(.\)\(.\)/\1\n\2/g'>tmp.wei
+    $tcoffee_cmd -infile $tmp_f -multi_core no -evaluate -output score_ascii -outfile $sa_f -quiet &>/dev/null
+    grep cons $sa_f | tail -n+2 | awk '{print $2}'|sed 's/\(.\)\(.\)/\1\n\2/g' | sed 's/\(.\)\(.\)/\1\n\2/g' > tmp.wei
     $weiSeqboot_cmd $input_phylip tmp.wei
     mv outfile $phylip_f
     ;;
