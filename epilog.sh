@@ -20,7 +20,7 @@ cd $OLDPWD
 #
 # Upload the result
 #
-s3cmd --rr --acl-public put $FULLZIP s3://cbcrg-lab/$ZIP
+s3cmd --rr --acl-public put $FULLZIP s3://$S3BUCKET/$ZIP
 
 #
 # Upload logs
@@ -30,7 +30,7 @@ bash qupload.sh
 #
 # Send notification email
 #
-MAIL_BODY="$PRJNAME job completed\n\nDownload the result at this link http://cbcrg-lab.s3.amazonaws.com/$ZIP\n\nBye"
+MAIL_BODY="$PRJNAME job completed\n\nDownload the result at this link http://$S3BUCKET.s3.amazonaws.com/$ZIP\n\nBye"
 MAIL_RECIPIENTS=${MAIL_RECIPIENTS:-'paolo.ditommaso@gmail.com'}
 MAIL_FROM="tcoffee.msa@gmail.com"
 MAIL_SUBJECT="$PRJNAME terminated ($$)!"

@@ -10,4 +10,4 @@ cd $LOG_FOLDER
 zip -r $ZIP * 
 
 # Uploading to S3
-s3cmd --rr --acl-public put $ZIP s3://cbcrg-eu/$(basename $ZIP)
+s3cmd --rr --acl-public put $ZIP s3://$S3BUCKET/$(basename $ZIP)
